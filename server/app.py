@@ -50,6 +50,40 @@ class PlantByID(Resource):
 
 api.add_resource(PlantByID, '/plants/<int:id>')
 
+app.patch('/plants/:id', async (req, res) => {
+  const { id } = req.params;
+  const updates = req.body;
+
+  try {
+    const plant = await Plant.findByPk(id); // or use findById if using Mongoose
+
+    if (!plant) {
+      return res.status(404).json({ error: 'Plant not found' });
+    }
+
+    await plant.update(updates); // Sequelize syntax
+    res.json(plant);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.delete('/plants/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const plant = await Plant.findByPk(id);
+
+    if (!plant) {
+      return res.status(404).json({ error: 'Plant not found' });
+    }
+
+    await plant.destroy(); // Sequelize syntax
+    res.status(204).send(); // 204 No Content
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
